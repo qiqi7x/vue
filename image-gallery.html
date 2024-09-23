@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Project 2</title>
+  <link rel="stylesheet" href="https://unpkg.com/normalize.css/normalize.css">
+  <style type="text/css">
+    body {
+      font-family: monospace;
+      padding: 20px;
+      font-size: 16px;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-gap: 10px;
+    }
+
+    .photo {
+      position: relative;
+      border: 1px solid #ccc;
+    }
+
+    .photo img {
+      width: 100%;
+      display: block;
+    }
+
+    .favorite-button {
+      background: none;
+      border: none;
+      color: #ccc;
+      font-size: 24px;
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      cursor: pointer;
+    }
+
+    .favorite-button.active {
+      color: gold;
+    }
+
+    .no-photos {
+      text-align: center;
+      color: #999;
+    }
+
+    form {
+      margin-bottom: 20px;
+    }
+  </style>
+  <script src="https://unpkg.com/vue@3.4.0"></script>
+</head>
+
+<body>
+  <div id="app">
+    <!-- Form for Adding Photos -->
+    <form @submit.prevent="addPhoto">
+      <input placeholder="Enter image URL" v-model="newPhotoUrl">
+      <button type="submit">Add Photo</button>
+    </form>
+
+    <!-- Conditional Rendering -->
+    <p class="no-photos" v-if="photos.length === 0">No photos added yet. Add some!</p>
+
+    <div class="gallery" v-else>
+      <!-- List Rendering and Conditional Class Binding -->
+      <div class="photo" v-for="(photo, index) in photos" :key="photo.id">
+        <!-- An image goes here -->
+        <img :src="photo.url" @click="removePhoto(index)" />
+        <button class="favorite-button" @click="toggleFavorite(photo)" :class="{'active': photo.isFavorite}">
+          ★
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp, ref } = Vue;
+    const App = {
+      setup() {
+        // Keep track of the list of photos
+        const photos = ref([
+          {
+            id: 1,
+            url: 'https://images.unsplash.com/photo-1712939706943-b6b3b4549937?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxlZGl0b3JpYWwtZmVlZHwxNHx8fGVufDB8fHx8fA%3D%3D',
+            isFavorite: false,
+          },
+          {
+            id: 2,
+            url: 'https://plus.unsplash.com/premium_photo-1712933121311-dcdc41d9fb17?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxlZGl0b3JpYWwtZmVlZHw5fHx8ZW58MHx8fHx8',
+            isFavorite: false,
+          },
+          {
+            id: 3,
+            url: 'https://images.unsplash.com/photo-1713105227378-91e790dfe4f0?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxlZGl0b3JpYWwtZmVlZHw4fHx8ZW58MHx8fHx8',
+            isFavorite: false
+          }
+        ]);
+        // We need a ref for the currently entered URL
+        const newPhotoUrl = ref('');
+        const addPhoto = () => {
+          console.log('I was clicked!');
+          // Adding photo logic goes here
+          const photo = {
+            id: photos.value.length + 1,
+            url: newPhotoUrl.value,
+            isFavorite: false
+          };
+          if (newPhotoUrl.value !== '') {
+            photos.value.push(photo);
+            newPhotoUrl.value = '';
+          }
+        };
+        const toggleFavorite = (photo) => {
+          console.log(photo);
+          photo.isFavorite = !photo.isFavorite;
+          console.log(photo);
+        };
+        const removePhoto = (index) => {
+          photos.value.splice(index, 1);
+        }
+
+        return {
+          addPhoto,
+          photos,
+          newPhotoUrl,
+          toggleFavorite,
+          removePhoto
+        }
+      },
+    };
+    createApp(App).mount('#app');
+  </script>
+</body>
+
+</html>
