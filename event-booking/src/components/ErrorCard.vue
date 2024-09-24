@@ -1,6 +1,7 @@
 <template>
   <!-- 定义一个SectionCard组件 -->
   <SectionCard>
+    <!-- 看class格式可知，项目引用了tailwind -->
     <!-- 定义一个div，设置间距、居中对齐、垂直排列 -->
     <div class="space-y-4 items-center flex flex-col">
       <!-- 定义一个div，设置文本颜色为红色 -->
@@ -21,6 +22,7 @@ import SectionCard from '@/components/SectionCard.vue';
 import RoundButton from './RoundButton.vue';
 // 定义props，retry为函数类型，非必需
 defineProps({
+  // 定义retry属性，类型为Function，非必需
   retry: {
     type: Function,
     required: false

@@ -8,18 +8,15 @@ const loading = ref(false);
 // 定义一个用于存储错误信息的响应式变量，初始值为null
 const error = ref(null);
 
-/**
- * 异步获取预订信息的函数
- * 通过设置loading状态表示数据加载开始，尝试从服务器获取预订数据，成功则更新bookings数组，失败则记录错误信息，最终重置loading状态
- */
-// 定义一个异步函数，用于获取预订信息
+
+// 定义一个异步函数fetchBookings
 const fetchBookings = async () => {
   // 设置加载状态为true
   loading.value = true;
   // 设置错误状态为null
   error.value = null;
   try {
-    // 发送请求，获取预订信息
+    // 发送请求，获取虚拟数据
     const response = await fetch('http://localhost:3001/bookings');
     // 将返回的json数据赋值给bookings
     bookings.value = await response.json();
@@ -33,18 +30,17 @@ const fetchBookings = async () => {
 };
 
 /**
- * 根据ID查找预订信息的函数
- * @param {string} id - 需要查找的预订信息的ID
+ * 根据ID查找信息的函数
+ * @param {string} id - 需要查找ID
  * @returns {number} - 预订信息在数组中的索引，如果未找到则返回-1
  */
+// 根据id查找
 const findBookingById = (id) => bookings.value.findIndex((b) => b.id === id);
 
 /**
- * 处理活动注册的异步函数
- * 检查是否已存在相同活动和用户的预订，如果不存在则创建新的预订，更新本地状态并尝试向服务器发送注册请求，成功则更新预订状态，失败则移除新创建的预订
  * @param {Object} event - 活动对象，包含活动ID和标题
  */
-// 定义一个异步函数，用于处理注册事件
+// 定义一个异步函数，用于处理按钮事件
 const handleRegistration = async (event) => {
   // 检查bookings数组中是否已经存在该用户的该事件
   if (bookings.value.some((booking) => booking.eventId === event.id && booking.userId === 1)) {
@@ -66,7 +62,7 @@ const handleRegistration = async (event) => {
   bookings.value.push(newBooking);
 
   try {
-    // 向服务器发送POST请求，将新的booking对象发送到服务器
+    // 向服务器发送POST请求，将新的booking对象添加到db.json的bookings对象中
     const response = await fetch('http://localhost:3001/bookings', {
       method: 'POST', // 请求方法为POST
       headers: { 'Content-Type': 'application/json' }, // 请求头为application/json
@@ -78,9 +74,9 @@ const handleRegistration = async (event) => {
 
 // 如果响应成功
     if (response.ok) {
-      // 根据新预订的id查找预订
+      // 根据id查找
       const index = findBookingById(newBooking.id);
-      // 将预订替换为响应的json数据
+      // 将数据替换为响应的json数据
       bookings.value[index] = await response.json();
     } else {
       // 如果响应失败，抛出错误
@@ -89,27 +85,25 @@ const handleRegistration = async (event) => {
   } catch (e) {
     // 如果发生错误，打印错误信息
     console.error(`Failed to register for event: `, e);
-    // 从预订中过滤掉新预订的id
+    // 从获得的信息中过滤掉新产生的id
     bookings.value = bookings.value.filter((b) => b.id !== newBooking.id);
   }
 };
 
 /**
- * 取消预订的异步函数
- * 在本地状态中找到并移除对应的预订信息，然后尝试向服务器发送取消请求，如果取消失败则重新添加预订信息
- * @param {string} bookingId - 需要取消的预订的ID
+ * @param {string} bookingId - 需要取消的ID
  */
-// 定义一个异步函数，用于取消预订
+// 定义一个异步函数，用于取消操作
 const cancelBooking = async (bookingId) => {
-  // 根据预订ID找到预订的索引
+  // 根据ID找到索引
   const index = findBookingById(bookingId);
-  // 获取原始预订信息
+  // 获取原始信息
   const originalBooking = bookings.value[index];
-  // 从预订列表中删除该预订
+  // 从列表中删除该项
   bookings.value.splice(index, 1);
 
   try {
-    // 发送DELETE请求，取消预订
+    // 发送DELETE请求，取消数据
     const response = await fetch(`http://localhost:3001/bookings/${bookingId}`, {
       method: 'DELETE'
     });
@@ -118,19 +112,19 @@ const cancelBooking = async (bookingId) => {
       throw new Error('Booking could not be cancelled.');
     }
   } catch (e) {
-    // 如果发生错误，打印错误信息，并将原始预订信息重新添加到预订列表中
+    // 如果发生错误，打印错误信息，并将原始信息重新添加到列表中
     console.error(`Failed to cancel booking:`, e);
     bookings.value.splice(index, 0, originalBooking);
   }
 };
 
 /**
- * 默认导出一个使用Vue的Composition API来管理预订相关功能的函数
+ * 默认导出一个使用Vue的Composition API来管理相关功能的函数
  * @returns {Object} - 包含bookings数组、loading和error状态，以及fetchBookings、handleRegistration和cancelBooking函数的对象
  */
-// 导出一个默认函数，用于处理预订
+// 导出一个默认函数，用于处理操作
 export default function useBookings() {
-  // 返回一个对象，包含预订、加载状态、错误信息、获取预订、处理注册和取消预订的方法
+  // 返回一个对象，包含bookings、loading、error、fetchBookings、handleRegistration和cancelBooking的方法
   return {
     bookings,
     loading,
